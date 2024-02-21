@@ -11,16 +11,20 @@ const connection = mysql.createConnection({
   database: 'livechat'
 });
 
-// Middleware to parse JSON bodies
+/************ Middleware to parse JSON bodies ************/
 app.use(express.json());
 
+/************ Function to replace underscores with spaces ************/
 function underscore_to_space(string){
   return string.replace(/_/g, " ");
 }
 
+/************ Route to retrieve all chat messages ************/
 app.post('/', (req, res) => {
+    // SQL query to select all messages from the database and order them by idMsg
     var query = "SELECT * FROM chat ORDER BY idMsg";
     
+    // Executing the SQL query
     connection.query(query, (err, result) => {
         if(err) throw err;
         else{
@@ -29,16 +33,14 @@ app.post('/', (req, res) => {
     });
 });
 
+/************ Route to send a chat message ************/
 app.post('/enviar', (req, res) => {
     // Extracting the message content from the request body
     var message = req.body;
 
     var nome = message.nome;
     var msg = message.content;
-    console.log(nome);
-    console.log(msg);
   
- 
     // SQL query to insert the message into the database
     var query = "INSERT INTO chat (idMsg, nome, content) VALUES (NULL, ?, ?)";
   
@@ -54,8 +56,12 @@ app.post('/enviar', (req, res) => {
     });
 });
 
+/************ Route to delete all chat messages ************/
 app.post('/apagar', (req, res) => {
+  // SQL query to delete all messages from the database
   var query = "DELETE FROM chat";
+  
+  // Executing the SQL query
   connection.query(query, (err, result) => {
     if(err) throw err;
     else{
@@ -64,6 +70,7 @@ app.post('/apagar', (req, res) => {
   });
 });
 
+/************ Start the server ************/
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 });

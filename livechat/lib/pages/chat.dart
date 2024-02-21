@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+/************ Chat Page Widget ************/
 class Chat extends StatefulWidget {
   final String username;
 
@@ -12,6 +13,7 @@ class Chat extends StatefulWidget {
   _ChatState createState() => _ChatState();
 }
 
+/************ Chat Page State ************/
 class _ChatState extends State<Chat> {
   List<Map<String, dynamic>> messages = [];
   TextEditingController messageController = TextEditingController();
@@ -33,6 +35,15 @@ class _ChatState extends State<Chat> {
     super.dispose();
   }
 
+  /*********************************************************************************************************************************************************************
+   * @brief Fetches messages from the server every 5 seconds and updates the UI with the retrieved messages.                                                          *
+   *                                                                                                                                                                   *
+   *      Sends a POST request to the server to retrieve chat messages. If successful, updates the state with the retrieved messages. If unsuccessful, prints an error.*
+   *                                                                                                                                                                   *
+   * @params None.                                                                                                                                                     *
+   * @desc This function is called when the Chat widget is initialized and every 5 seconds thereafter to fetch new messages from the server.                          *
+   * @return None.                                                                                                                                                     *
+   *********************************************************************************************************************************************************************/
   Future<void> _getMessages() async {
     Uri url = Uri.parse('https://0f72-89-114-76-126.ngrok-free.app');
     try {
@@ -52,49 +63,44 @@ class _ChatState extends State<Chat> {
     }
   }
 
-Future<void> _sendMessage(String message) async {
-  // Construct the message data to be sent to the server
-  /*var messageData = {
-    'nome': widget.username,
-    'content': message,
-  };*/
+  /*********************************************************************************************************************************************************************
+   * @brief Sends a message to the server with the current username and message content.                                                                               *
+   *                                                                                                                                                                   *
+   *      Constructs a JSON object containing the username and message content, sends a POST request to the server's enviar endpoint with the JSON object as the body.*
+   *                                                                                                                                                                   *
+   * @params message : String - The message to be sent.                                                                                                               *
+   * @desc This function is called when the user submits a message.                                                                                                    *
+   * @return None.                                                                                                                                                     *
+   *********************************************************************************************************************************************************************/
+  Future<void> _sendMessage(String message) async {
+    // Define the URL of your server's enviar endpoint
+    var url = Uri.parse('https://0f72-89-114-76-126.ngrok-free.app/enviar');
 
+    try {
+      JsonEncoder encoder = new JsonEncoder.withIndent('  ');
+      String json = encoder.convert({
+        'nome': widget.username,
+        'content': message,
+      });
 
+      var response = await http.post(url, body: json, headers: {
+        'Content-Type': 'application/json',
+      });
 
-  // Define the URL of your server's enviar endpoint
-  var url = Uri.parse('https://0f72-89-114-76-126.ngrok-free.app/enviar');
-
-  try {
-
-    JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-    String json = encoder.convert({
-      'nome': widget.username,
-      'content': message,
-    });
-
-    
-    var response = await http.post(url, body: json, headers: {
-      'Content-Type': 'application/json',
-    });
-
-    // Check if the request was successful
-    if (response.statusCode == 200) {
-      // Handle successful response (optional)
-      print('Message sent successfully');
-    } else {
-      // Handle unsuccessful response
-      print('Failed to send message: ${response.reasonPhrase}');
+      // Check if the request was successful
+      if (response.statusCode == 200) {
+        // Handle successful response (optional)
+        print('Message sent successfully');
+      } else {
+        // Handle unsuccessful response
+        print('Failed to send message: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      // Handle any errors that occur during the request
+      print('Error sending message: $e');
     }
-  } catch (e) {
-    // Handle any errors that occur during the request
-    print('Error sending message: $e');
   }
-}
-  
-  
-  
-  
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
